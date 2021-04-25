@@ -1,0 +1,9 @@
+.resume-container p{
+  font-size: 1.2rem;
+}
+
+@media(max-width:768px){
+  h1.display-3{
+    font-size: 2.5rem;
+  }
+}
