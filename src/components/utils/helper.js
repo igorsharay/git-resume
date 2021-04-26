@@ -1,23 +1,25 @@
+import { API_GITHUB_TOKEN } from "../../config";
+
 export const location = (history, uri) => {
   let path = `/${uri}`;
   history.push(path);
 };
 
 export const getData = async url => {
-  const res = await fetch(`${url}`, {
+  const response = await fetch(`${url}`, {
     headers: {
       "X-Requested-With": "XMLHttpRequest",
       "Content-Type": "application/json;charset=UTF-8",
-      Authorization: "token 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",
+      Authorization: `token ${API_GITHUB_TOKEN}`,
     },
-  })
-    .then(res => {
-      console.log(res);
-      return res;
-    })
-    .catch(e => {
-      console.log("getData error", e);
-    });
+  });
 
-  return await res.json();
+  const returnedData = {
+    status: response.status,
+    ok: response.ok
+  };
+
+  returnedData.data = await response.json();
+  
+  return returnedData;
 };

@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
-import { API_GITHUB_TOKEN } from "../../config";
+import { useCallback, useEffect, useState } from "react";
+
 import moment from 'moment';
-import { location } from "../utils/helper";
+import { getData } from "../utils/helper";
+import Spinner from "./../common/Spinner";
+import Error404 from "./../Page404/index";
 
 
 
@@ -12,42 +14,33 @@ const Resume = ({
   },
 }) => {
   const [error, setError] = useState(null);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isUserLoaded, setIsUserLoaded] = useState(false);
   const [userData, setUserData] = useState([]);
 
+  // get user data
   useEffect(() => {
-    fetch(`https://api.github.com/users/${username}`, {
-      headers: {
-        "X-Requested-With": "XMLHttpRequest",
-        "Content-Type": "application/json;charset=UTF-8",
-        Authorization: `token ${API_GITHUB_TOKEN}`,
-      },
-    })
-      .then(res => res.json())
-      .then(
-        result => {
-          setIsLoaded(true);
-          setUserData(result);
-        },
-        error => {
-          setIsLoaded(true);
-          setError(error);
-          //location(history, "404");
-        }
-      );
+    (async () => {
+      const userResponse = await getData(`https://api.github.com/users/${username}`);
+        
+      console.log('userResponse', userResponse);
+
+      setIsUserLoaded(true);
+
+      if (userResponse.ok) {
+        if(userResponse.data)
+        setUserData(userResponse.data);
+      }
+      else{
+        setError({ status: userResponse.status, message: userResponse.data?.message});
+      }
+    })();
   }, [username]);
 
-  console.table(userData);
-  
   if (error) {
-    return <div>Error: {error.message}</div>;
-  } else if (!isLoaded) {
+    return <Error404 status={error.status} message={error.message} />;
+  } else if (!isUserLoaded) {
     return (
-      <div className="d-flex justify-content-center">
-        <div className="spinner-border" role="status">
-          <span className="sr-only">Loading...</span>
-        </div>
-      </div>
+      <Spinner />
     );
   } else {
     return (
@@ -57,7 +50,7 @@ const Resume = ({
           <small>Member since {moment(userData.created_at).format('MMM DD YYYY')}</small>
         </div>
         <p>
-          Public repositories <span class="badge badge-info">{userData.public_repos}</span>
+          Public repositories <span className="badge badge-info">{userData.public_repos}</span>
         </p>
 
         <div className="row">
