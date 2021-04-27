@@ -4,6 +4,7 @@ import { location } from "../utils/helper";
 
 const Home = () => {
   const [username, setUsername] = useState("");
+  const history = useHistory();
 
   const handleChange = useCallback(
     e => {
@@ -12,11 +13,18 @@ const Home = () => {
     [setUsername]
   );
 
-  const history = useHistory();
-
   const handleClick = useCallback(
     e => {
       location(history, username);
+    },
+    [history, username]
+  );
+
+  const handleKeyPress = useCallback(
+    e => {
+      if(e.key === 'Enter'){
+        location(history, username);
+      }
     },
     [history, username]
   );
@@ -36,6 +44,7 @@ const Home = () => {
             placeholder="Enter your GitHub username and click on generate"
             value={username}
             onChange={handleChange}
+            onKeyPress={handleKeyPress}
           />
         </div>
 

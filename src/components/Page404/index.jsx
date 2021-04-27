@@ -1,5 +1,5 @@
-import React from "react";
 import { Link } from "react-router-dom";
+import { PropTypes } from "prop-types";
 import './style.css';
 
 const Error404 = ({ status = 404, message="Nothing found" }) => {
@@ -13,5 +13,10 @@ const Error404 = ({ status = 404, message="Nothing found" }) => {
     </div>
   );
 };
+
+Error404.propTypes = {
+  status: PropTypes.number,
+  message: PropTypes.string
+}
 
 export default Error404;
