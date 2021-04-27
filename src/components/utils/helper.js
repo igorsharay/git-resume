@@ -10,7 +10,7 @@ export const getData = async url => {
     headers: {
       "X-Requested-With": "XMLHttpRequest",
       "Content-Type": "application/json;charset=UTF-8",
-      Authorization: `token ${API_GITHUB_TOKEN}`,
+      ...(API_GITHUB_TOKEN ? { Authorization: `token ${API_GITHUB_TOKEN}` } : {}),
     },
   });
 
