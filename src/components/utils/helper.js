@@ -23,3 +23,5 @@ export const getData = async url => {
   
   return returnedData;
 };
+
+export const sleep = delay => new Promise(resolve => setTimeout(resolve, delay));

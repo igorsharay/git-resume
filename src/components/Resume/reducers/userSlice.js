@@ -36,12 +36,12 @@ export default function userReducer(state = initialState, action) {
 
 export function fetchUserData(username) {
   return async (dispatch, getState) => {
+
+    dispatch({ type: 'USER_DATA_LOADING', payload: true });
     // ajax request here
     const userResponse = await getData(
       `https://api.github.com/users/${username}`
     );
-
-    dispatch({ type: 'USER_DATA_LOADING', payload: true });
 
     if (userResponse.ok) {
       dispatch({ type: 'USER_DATA_LOADING', payload: false });

@@ -21,7 +21,7 @@ export default function reposReducer(state = initialState, action) {
     case 'REPOS_DATA_LOADING':
       return {
         ...state,
-        isUserLoading: action.payload
+        isReposLoading: action.payload
       };
     
     case 'REPOS_DATA_LOADING_ERROR':
@@ -46,12 +46,13 @@ export default function reposReducer(state = initialState, action) {
 
 export function fetchReposData(reposUrl, page) {
   return async (dispatch, getState) => {
+
+    dispatch({ type: 'REPOS_DATA_LOADING', payload: true });
+
     // ajax request here
     const reposResponse = await getData(
       `${reposUrl}?visibility=public&affiliation=owner&sort=updated&direction=desc&per_page=100&page=${page}`
     );
-
-    dispatch({ type: 'REPOS_DATA_LOADING', payload: true });
 
     if (reposResponse.ok) {
       dispatch({ type: 'REPOS_DATA_LOADING', payload: false });
@@ -63,9 +64,6 @@ export function fetchReposData(reposUrl, page) {
           dispatch({ type: 'REPOS_PAGE_INCREMENTED'});
         }
       }
-    
-      console.log('New repos arr', getState());
-      
     } else {
       dispatch({type: 'REPOS_DATA_LOADING_ERROR', payload: {
         status: reposResponse.status,
