@@ -7,6 +7,15 @@
   font-size: 1.2rem;
 }
 
+.doughnut-container{
+  width:100%;
+  max-height:250px;
+}
+
+.doughnut-chart{
+  max-width:250px;
+}
+
 @media(max-width:768px){
   h1.display-3{
     font-size: 2.5rem;

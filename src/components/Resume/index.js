@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import moment from "moment";
 import { PropTypes } from "prop-types";
 import { Link } from "react-router-dom";
-import { getData } from "../utils/helper";
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchUserData } from './reducers/userSlice';
+import { fetchReposData } from './reducers/reposSlice';
 import Spinner from "./../common/Spinner";
-import Error404 from "./../Page404/index";
+import ErrorPage from "../ErrorPage/index";
 import LanguagesList from "./components/LanguagesList";
 import RepositoryList from "./components/RepositoryList";
 import ResumeItem from "./components/ResumeItem";
@@ -13,116 +15,83 @@ import "./style.css";
 const Resume = ({
   match: {
     params: { username },
-  },
+  }
 }) => {
-  const [error, setError] = useState(null);
-  const [isUserLoaded, setIsUserLoaded] = useState(false);
-  const [userData, setUserData] = useState([]);
 
-  const [isUserReposLoaded, setIsUserReposLoaded] = useState(false);
-  const [userRepos, setUserRepos] = useState([]);
-  const [pageNumber, setPageNumber] = useState(1);
-
+  const dispatch = useDispatch();
+  const { user, userLoadingError, isUserLoading } = useSelector(state => state.userData);
+  const { repos, isReposLoading, reposPageNumber } = useSelector(state => state.reposData);
+  
   // Get user data
   useEffect(() => {
-    (async () => {
-      const userResponse = await getData(
-        `https://api.github.com/users/${username}`
-      );
-
-      setIsUserLoaded(true);
-
-      if (userResponse.ok) {
-        if (userResponse.data) setUserData(userResponse.data);
-      } else {
-        setError({
-          status: userResponse.status,
-          message: userResponse.data?.message,
-        });
-      }
-    })();
-  }, [username]);
+    dispatch(fetchUserData(username));
+  }, [dispatch, username]);
 
   // Get user repos
   useEffect(() => {
-    async function getRepos() {
-      const reposResponse = await getData(
-        `${userData.repos_url}?visibility=public&affiliation=owner&sort=updated&direction=desc&per_page=100&page=${pageNumber}`
-      );
+    if (user.repos_url)
+      dispatch(fetchReposData(user.repos_url, reposPageNumber));
 
-      setIsUserReposLoaded(true);
-
-      if (reposResponse.ok) {
-        if (reposResponse.data) {
-          setUserRepos(prevState => [...prevState, ...reposResponse.data]);
-
-          if (reposResponse.data.length === 100) {
-            setPageNumber(page => page + 1);
-          }
-        }
-      }
-    }
-
-    if (userData.repos_url) {
-      getRepos();
-    }
-  }, [userData, pageNumber]);
+  }, [dispatch, user, reposPageNumber]);
 
   // Get used languages
   const repoLanguages = useMemo(() => {
-    return userRepos.reduce((languages, repo) => {
+    if (!repos.length)
+      return {};
+
+    return repos.reduce((languages, repo) => {
       if (repo.language) {
         if (repo.language in languages) languages[repo.language]++;
         else languages[repo.language] = 1;
       }
       return languages;
     }, {});
-  }, [userRepos]);
+  }, [repos]);
 
-  if (error) {
-    return <Error404 status={error.status} message={error.message} />;
-  } else if (!isUserLoaded) {
+  if (userLoadingError && Object.keys(userLoadingError).length) {
+    return <ErrorPage status={userLoadingError.status} message={userLoadingError.message} />;
+
+  } else if (isUserLoading) {
     return <Spinner />;
+    
   } else {
     return (
       <div className="w-100 resume-container p-3 p-md-5 my-3 my-md-4">
         <div className="d-flex flex-wrap justify-content-between align-items-start mb-3 mb-md-0">
-          <h1 className="display-3 mb-2 mb-md-5">{userData.name}</h1>
+          <h1 className="display-3 mb-2 mb-md-5">{user.name}</h1>
           <span className="h6 font-weight-normal">
-            Member since {moment(userData.created_at).format("MMM DD YYYY")}
+            Member since {moment(user.created_at).format("MMM DD YYYY")}
           </span>
         </div>
 
         <dl className="row">
           <ResumeItem title={"Public repositories"}>
             <div className="h4">
-              <span className="badge badge-info">{userData.public_repos}</span>
+              <span className="badge badge-info">{user.public_repos}</span>
             </div>
           </ResumeItem>
 
           <ResumeItem title={"Languages"}>
-            {isUserReposLoaded && Object.keys(repoLanguages).length ? (
-              <LanguagesList languages={repoLanguages} username={username} />
-            ) : (
-              <span>No languages</span>
-            )}
+            {!isReposLoading ? (
+              Object.keys(repoLanguages).length ?
+                <LanguagesList languages={repoLanguages} username={username} />
+                : <span>No languages</span>
+              ) : <Spinner />
+            }
           </ResumeItem>
 
           <ResumeItem title={"Recently edited public repositories"}>
-            {isUserReposLoaded ? (
-              userRepos.length ? (
+            {!isReposLoading ? (
+              repos.length ? 
                 <RepositoryList
-                  repositories={userRepos.slice(
+                  repositories={repos.slice(
                     0,
-                    Math.min(10, userRepos.length)
+                    Math.min(10, repos.length)
                   )}
                 />
-              ) : (
-                <span>No repositories</span>
-              )
-            ) : (
-              <Spinner />
-            )}
+                : <span>No repositories</span>
+              ) : <Spinner />
+            }
           </ResumeItem>
         </dl>
 

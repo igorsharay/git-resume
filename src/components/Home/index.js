@@ -1,10 +1,13 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { Link, useHistory } from "react-router-dom";
+import { useDispatch } from 'react-redux';
 import { location } from "../utils/helper";
+import { resetSearch } from '../../reducer';
 
 const Home = () => {
   const [username, setUsername] = useState("");
   const history = useHistory();
+  const dispatch = useDispatch();
 
   const handleChange = useCallback(
     e => {
@@ -28,6 +31,8 @@ const Home = () => {
     },
     [history, username]
   );
+
+  useEffect(() => dispatch(resetSearch()), [dispatch]);
 
   return (
     <div className="jumbotron w-100">

@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { PropTypes } from "prop-types";
 import './style.css';
 
-const Error404 = ({ status = 404, message="Nothing found" }) => {
+const ErrorPage = ({ status = 404, message="Nothing found" }) => {
   return (
     <div className="d-flex justify-content-center align-items-center h-100 w-100">
       <div className="d-flex justify-content-center align-items-center flex-column mt-5">
@@ -14,9 +14,9 @@ const Error404 = ({ status = 404, message="Nothing found" }) => {
   );
 };
 
-Error404.propTypes = {
+ErrorPage.propTypes = {
   status: PropTypes.number,
   message: PropTypes.string
 }
 
-export default Error404;
+export default ErrorPage;
