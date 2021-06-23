@@ -49,7 +49,6 @@ export function fetchReposData(reposUrl, page) {
 
     dispatch({ type: 'REPOS_DATA_LOADING', payload: true });
 
-    // ajax request here
     const reposResponse = await getData(
       `${reposUrl}?visibility=public&affiliation=owner&sort=updated&direction=desc&per_page=100&page=${page}`
     );

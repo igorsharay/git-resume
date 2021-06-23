@@ -8,14 +8,6 @@ const appReducer = combineReducers({
   reposData: reposSlice
 });
 
-const rootReducer = (state, action) => {
-  if (action.type === 'RESET_SEARCH') {
-    return appReducer(undefined, action)
-  }
-
-  return appReducer(state, action)
-}
-
 export const resetSearch = () => {
   return async (dispatch, getState) => {
     dispatch({ type: 'RESET_USER'});
@@ -23,4 +15,4 @@ export const resetSearch = () => {
   }
 };
 
-export default rootReducer;
+export default appReducer;

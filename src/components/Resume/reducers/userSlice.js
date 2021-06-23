@@ -38,7 +38,7 @@ export function fetchUserData(username) {
   return async (dispatch, getState) => {
 
     dispatch({ type: 'USER_DATA_LOADING', payload: true });
-    // ajax request here
+
     const userResponse = await getData(
       `https://api.github.com/users/${username}`
     );
